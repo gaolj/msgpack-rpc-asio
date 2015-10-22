@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="include">
+      <UniqueIdentifier>{A44FA136-84EF-4B4B-B334-B91A5EABC9D3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\msgpack">
+      <UniqueIdentifier>{2E8E9E7F-ABF3-FB4C-A676-AED68DBB3152}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\msgpack\rpc">
+      <UniqueIdentifier>{DE8AEFA4-2E03-E241-B04B-F2C86851B07A}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\msgpack\rpc\asio">
+      <UniqueIdentifier>{0709CE29-E85A-F24C-B2DE-D582D461AC32}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\msgpack\pack_util.h">
+      <Filter>include\msgpack</Filter>
+    </ClInclude>
+    <ClInclude Include="include\msgpack\tuple_util.h">
+      <Filter>include\msgpack</Filter>
+    </ClInclude>
+    <ClInclude Include="include\msgpack\rpc\asio.h">
+      <Filter>include\msgpack\rpc</Filter>
+    </ClInclude>
+    <ClInclude Include="include\msgpack\rpc\protocol.h">
+      <Filter>include\msgpack\rpc</Filter>
+    </ClInclude>
+    <ClInclude Include="include\msgpack\rpc\asio\client.h">
+      <Filter>include\msgpack\rpc\asio</Filter>
+    </ClInclude>
+    <ClInclude Include="include\msgpack\rpc\asio\dispatcher.h">
+      <Filter>include\msgpack\rpc\asio</Filter>
+    </ClInclude>
+    <ClInclude Include="include\msgpack\rpc\asio\server.h">
+      <Filter>include\msgpack\rpc\asio</Filter>
+    </ClInclude>
+    <ClInclude Include="include\msgpack\rpc\asio\session.h">
+      <Filter>include\msgpack\rpc\asio</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

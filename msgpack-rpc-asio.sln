@@ -1,0 +1,53 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "client", "client\client.vcxproj", "{700030E6-8AEA-1E46-81B0-74B8A80198BD}"
+	ProjectSection(ProjectDependencies) = postProject
+		{DB386D9C-88A0-A545-81E5-2C1C3A30626B} = {DB386D9C-88A0-A545-81E5-2C1C3A30626B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test", "test\test.vcxproj", "{C7875FA1-1012-5C45-8960-EE9281FE492A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{DB386D9C-88A0-A545-81E5-2C1C3A30626B} = {DB386D9C-88A0-A545-81E5-2C1C3A30626B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sample", "sample\sample.vcxproj", "{24212A88-190F-DA4C-A077-E80F9E9E2D36}"
+	ProjectSection(ProjectDependencies) = postProject
+		{DB386D9C-88A0-A545-81E5-2C1C3A30626B} = {DB386D9C-88A0-A545-81E5-2C1C3A30626B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "msgpack-rpc-asio", "msgpack-rpc-asio\msgpack-rpc-asio.vcxproj", "{6A2C5534-1DE4-514C-A88D-9B5456DCD06D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "msgpack", "msgpack\msgpack.vcxproj", "{DB386D9C-88A0-A545-81E5-2C1C3A30626B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{700030E6-8AEA-1E46-81B0-74B8A80198BD}.Debug|Win32.ActiveCfg = Debug|Win32
+		{700030E6-8AEA-1E46-81B0-74B8A80198BD}.Debug|Win32.Build.0 = Debug|Win32
+		{700030E6-8AEA-1E46-81B0-74B8A80198BD}.Release|Win32.ActiveCfg = Release|Win32
+		{700030E6-8AEA-1E46-81B0-74B8A80198BD}.Release|Win32.Build.0 = Release|Win32
+		{C7875FA1-1012-5C45-8960-EE9281FE492A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C7875FA1-1012-5C45-8960-EE9281FE492A}.Debug|Win32.Build.0 = Debug|Win32
+		{C7875FA1-1012-5C45-8960-EE9281FE492A}.Release|Win32.ActiveCfg = Release|Win32
+		{C7875FA1-1012-5C45-8960-EE9281FE492A}.Release|Win32.Build.0 = Release|Win32
+		{24212A88-190F-DA4C-A077-E80F9E9E2D36}.Debug|Win32.ActiveCfg = Debug|Win32
+		{24212A88-190F-DA4C-A077-E80F9E9E2D36}.Debug|Win32.Build.0 = Debug|Win32
+		{24212A88-190F-DA4C-A077-E80F9E9E2D36}.Release|Win32.ActiveCfg = Release|Win32
+		{24212A88-190F-DA4C-A077-E80F9E9E2D36}.Release|Win32.Build.0 = Release|Win32
+		{6A2C5534-1DE4-514C-A88D-9B5456DCD06D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{6A2C5534-1DE4-514C-A88D-9B5456DCD06D}.Debug|Win32.Build.0 = Debug|Win32
+		{6A2C5534-1DE4-514C-A88D-9B5456DCD06D}.Release|Win32.ActiveCfg = Release|Win32
+		{6A2C5534-1DE4-514C-A88D-9B5456DCD06D}.Release|Win32.Build.0 = Release|Win32
+		{DB386D9C-88A0-A545-81E5-2C1C3A30626B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{DB386D9C-88A0-A545-81E5-2C1C3A30626B}.Debug|Win32.Build.0 = Debug|Win32
+		{DB386D9C-88A0-A545-81E5-2C1C3A30626B}.Release|Win32.ActiveCfg = Release|Win32
+		{DB386D9C-88A0-A545-81E5-2C1C3A30626B}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

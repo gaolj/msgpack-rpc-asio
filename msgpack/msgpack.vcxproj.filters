@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{4A219754-FFDA-9A45-9EFC-4E890D61F16F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\msgpack">
+      <UniqueIdentifier>{C8217529-DBFE-B243-AC8A-3E4BEDDED9BD}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\msgpack\type">
+      <UniqueIdentifier>{7C454AB0-8253-2B47-8274-CC904D28A7C0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\msgpack\type\tr1">
+      <UniqueIdentifier>{5E5FA5D4-D0FC-1E45-B690-5C1B3F20618D}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\msgpack.hpp">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\msgpack\object.hpp">
+      <Filter>src\msgpack</Filter>
+    </ClInclude>
+    <ClInclude Include="src\msgpack\pack.hpp">
+      <Filter>src\msgpack</Filter>
+    </ClInclude>
+    <ClInclude Include="src\msgpack\sbuffer.hpp">
+      <Filter>src\msgpack</Filter>
+    </ClInclude>
+    <ClInclude Include="src\msgpack\type.hpp">
+      <Filter>src\msgpack</Filter>
+    </ClInclude>
+    <ClInclude Include="src\msgpack\unpack.hpp">
+      <Filter>src\msgpack</Filter>
+    </ClInclude>
+    <ClInclude Include="src\msgpack\vrefbuffer.hpp">
+      <Filter>src\msgpack</Filter>
+    </ClInclude>
+    <ClInclude Include="src\msgpack\zbuffer.hpp">
+      <Filter>src\msgpack</Filter>
+    </ClInclude>
+    <ClInclude Include="src\msgpack\zone.hpp">
+      <Filter>src\msgpack</Filter>
+    </ClInclude>
+    <ClInclude Include="src\msgpack\type\bool.hpp">
+      <Filter>src\msgpack\type</Filter>
+    </ClInclude>
+    <ClInclude Include="src\msgpack\type\define.hpp">
+      <Filter>src\msgpack\type</Filter>
+    </ClInclude>
+    <ClInclude Include="src\msgpack\type\deque.hpp">
+      <Filter>src\msgpack\type</Filter>
+    </ClInclude>
+    <ClInclude Include="src\msgpack\type\fixint.hpp">
+      <Filter>src\msgpack\type</Filter>
+    </ClInclude>
+    <ClInclude Include="src\msgpack\type\float.hpp">
+      <Filter>src\msgpack\type</Filter>
+    </ClInclude>
+    <ClInclude Include="src\msgpack\type\int.hpp">
+      <Filter>src\msgpack\type</Filter>
+    </ClInclude>
+    <ClInclude Include="src\msgpack\type\list.hpp">
+      <Filter>src\msgpack\type</Filter>
+    </ClInclude>
+    <ClInclude Include="src\msgpack\type\map.hpp">
+      <Filter>src\msgpack\type</Filter>
+    </ClInclude>
+    <ClInclude Include="src\msgpack\type\nil.hpp">
+      <Filter>src\msgpack\type</Filter>
+    </ClInclude>
+    <ClInclude Include="src\msgpack\type\pair.hpp">
+      <Filter>src\msgpack\type</Filter>
+    </ClInclude>
+    <ClInclude Include="src\msgpack\type\raw.hpp">
+      <Filter>src\msgpack\type</Filter>
+    </ClInclude>
+    <ClInclude Include="src\msgpack\type\set.hpp">
+      <Filter>src\msgpack\type</Filter>
+    </ClInclude>
+    <ClInclude Include="src\msgpack\type\string.hpp">
+      <Filter>src\msgpack\type</Filter>
+    </ClInclude>
+    <ClInclude Include="src\msgpack\type\tuple.hpp">
+      <Filter>src\msgpack\type</Filter>
+    </ClInclude>
+    <ClInclude Include="src\msgpack\type\vector.hpp">
+      <Filter>src\msgpack\type</Filter>
+    </ClInclude>
+    <ClInclude Include="src\msgpack\type\tr1\unordered_map.hpp">
+      <Filter>src\msgpack\type\tr1</Filter>
+    </ClInclude>
+    <ClInclude Include="src\msgpack\type\tr1\unordered_set.hpp">
+      <Filter>src\msgpack\type\tr1</Filter>
+    </ClInclude>
+    <ClInclude Include="src\msgpack.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\msgpack\object.h">
+      <Filter>src\msgpack</Filter>
+    </ClInclude>
+    <ClInclude Include="src\msgpack\pack.h">
+      <Filter>src\msgpack</Filter>
+    </ClInclude>
+    <ClInclude Include="src\msgpack\pack_define.h">
+      <Filter>src\msgpack</Filter>
+    </ClInclude>
+    <ClInclude Include="src\msgpack\pack_template.h">
+      <Filter>src\msgpack</Filter>
+    </ClInclude>
+    <ClInclude Include="src\msgpack\sbuffer.h">
+      <Filter>src\msgpack</Filter>
+    </ClInclude>
+    <ClInclude Include="src\msgpack\sysdep.h">
+      <Filter>src\msgpack</Filter>
+    </ClInclude>
+    <ClInclude Include="src\msgpack\unpack.h">
+      <Filter>src\msgpack</Filter>
+    </ClInclude>
+    <ClInclude Include="src\msgpack\unpack_define.h">
+      <Filter>src\msgpack</Filter>
+    </ClInclude>
+    <ClInclude Include="src\msgpack\unpack_template.h">
+      <Filter>src\msgpack</Filter>
+    </ClInclude>
+    <ClInclude Include="src\msgpack\version.h">
+      <Filter>src\msgpack</Filter>
+    </ClInclude>
+    <ClInclude Include="src\msgpack\vrefbuffer.h">
+      <Filter>src\msgpack</Filter>
+    </ClInclude>
+    <ClInclude Include="src\msgpack\zbuffer.h">
+      <Filter>src\msgpack</Filter>
+    </ClInclude>
+    <ClInclude Include="src\msgpack\zone.h">
+      <Filter>src\msgpack</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\gcc_atomic.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\object.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\objectc.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\unpack.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\version.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\vrefbuffer.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\zone.c">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
