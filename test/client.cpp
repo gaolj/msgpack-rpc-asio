@@ -16,12 +16,7 @@ BOOST_AUTO_TEST_CASE( client )
 	// avoid stop client_io when client closed
 	boost::asio::io_service::work work(client_io);
 
-	msgpack::rpc::asio::client client(client_io, [](
-                msgpack::rpc::asio::connection_status status){
-
-            std::cout << "connection_status: " << status << std::endl;
-
-            });
+	msgpack::rpc::asio::Client client(client_io);
 
     client.connect_async(boost::asio::ip::tcp::endpoint(
                 boost::asio::ip::address::from_string("127.0.0.1"), PORT));

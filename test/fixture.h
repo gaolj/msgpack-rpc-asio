@@ -16,21 +16,21 @@ struct Fixture
     Fixture(int port) 
         : server(server_io), work(dispatcher_io)
     {
-        dispatcher.add_handler("zero", &Fixture::zero);
-        dispatcher.add_handler("acc", &Fixture::unary);
-        dispatcher.add_handler("add", &Fixture::binary);
-        dispatcher.add_handler("add3", [](int a, int b, int c){ return a+b+c; });
-        dispatcher.add_handler("add4", [](int a, int b, int c, int d){ return a+b+c+d; });
+        dispatcher->add_handler("zero", &Fixture::zero);
+        dispatcher->add_handler("acc", &Fixture::unary);
+        dispatcher->add_handler("add", &Fixture::binary);
+        dispatcher->add_handler("add3", [](int a, int b, int c){ return a+b+c; });
+        dispatcher->add_handler("add4", [](int a, int b, int c, int d){ return a+b+c+d; });
 
 		auto pDispatcher=&dispatcher;
 		auto pDispatcherIO=&dispatcher_io;
         auto on_receive=[pDispatcher, pDispatcherIO](
                 const msgpack::object &msg, 
-                std::shared_ptr<msgpack::rpc::asio::session> session)
+                std::shared_ptr<msgpack::rpc::asio::Connection> connection)
         {
             auto self=pDispatcher;
-            pDispatcherIO->post([self, msg, session](){
-                    self->dispatch(msg, session);
+            pDispatcherIO->post([self, msg, connection](){
+                    self->dispatch(msg, connection);
                     });
         };
 		server.set_on_receive(on_receive);

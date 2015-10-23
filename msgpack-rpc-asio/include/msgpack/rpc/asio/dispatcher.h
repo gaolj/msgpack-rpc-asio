@@ -131,7 +131,7 @@ public:
         }
     }
 
-    void dispatch(const object &msg, std::shared_ptr<session> session)
+    void dispatch(const object &msg, std::shared_ptr<Connection> connection)
     {
         // extract msgpack request
         ::msgpack::rpc::msg_request<msgpack::object, msgpack::object> req;
@@ -140,11 +140,11 @@ public:
             // execute callback
             std::shared_ptr<msgpack::sbuffer> result=request(req.msgid, req.method, req.param);
             // send 
-            session->write_async(result);
+			connection->write_async(result);
         }
         catch(msgerror ex)
         {
-            session->write_async(ex.to_msg(req.msgid));
+			connection->write_async(ex.to_msg(req.msgid));
         }
     }
 

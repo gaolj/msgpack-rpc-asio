@@ -68,8 +68,9 @@ public:
 
 }}}
 
-#include "asio/session.h"
+#include "asio/connection.h"
 #include "asio/dispatcher.h"
+#include "asio/session.h"
 #include "asio/server.h"
 #include "asio/client.h"
 

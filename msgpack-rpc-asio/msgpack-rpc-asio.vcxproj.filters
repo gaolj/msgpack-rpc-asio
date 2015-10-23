@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="include">
@@ -27,16 +27,19 @@
     <ClInclude Include="include\msgpack\rpc\protocol.h">
       <Filter>include\msgpack\rpc</Filter>
     </ClInclude>
-    <ClInclude Include="include\msgpack\rpc\asio\client.h">
-      <Filter>include\msgpack\rpc\asio</Filter>
-    </ClInclude>
     <ClInclude Include="include\msgpack\rpc\asio\dispatcher.h">
       <Filter>include\msgpack\rpc\asio</Filter>
     </ClInclude>
     <ClInclude Include="include\msgpack\rpc\asio\server.h">
       <Filter>include\msgpack\rpc\asio</Filter>
     </ClInclude>
+    <ClInclude Include="include\msgpack\rpc\asio\connection.h">
+      <Filter>include\msgpack\rpc\asio</Filter>
+    </ClInclude>
     <ClInclude Include="include\msgpack\rpc\asio\session.h">
+      <Filter>include\msgpack\rpc\asio</Filter>
+    </ClInclude>
+    <ClInclude Include="include\msgpack\rpc\asio\client.h">
       <Filter>include\msgpack\rpc\asio</Filter>
     </ClInclude>
   </ItemGroup>

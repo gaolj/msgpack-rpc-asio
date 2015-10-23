@@ -109,13 +109,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\msgpack\pack_util.h" />
+    <ClInclude Include="include\msgpack\rpc\asio\client.h" />
     <ClInclude Include="include\msgpack\tuple_util.h" />
     <ClInclude Include="include\msgpack\rpc\asio.h" />
     <ClInclude Include="include\msgpack\rpc\protocol.h" />
-    <ClInclude Include="include\msgpack\rpc\asio\client.h" />
+    <ClInclude Include="include\msgpack\rpc\asio\session.h" />
     <ClInclude Include="include\msgpack\rpc\asio\dispatcher.h" />
     <ClInclude Include="include\msgpack\rpc\asio\server.h" />
-    <ClInclude Include="include\msgpack\rpc\asio\session.h" />
+    <ClInclude Include="include\msgpack\rpc\asio\connection.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

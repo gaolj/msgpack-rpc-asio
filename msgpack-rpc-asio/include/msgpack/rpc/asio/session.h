@@ -6,214 +6,382 @@ namespace rpc {
 namespace asio {
 
 
-inline std::shared_ptr<msgpack::sbuffer> error_notify(const std::string &msg)
+class request_factory
 {
-    // notify type
-    ::msgpack::rpc::msg_notify<std::string, std::string> notify(
-            // method
-            "error_notify",
-            // params
-            msg
-            );
-    // result
-    auto sbuf=std::make_shared<msgpack::sbuffer>();
-    msgpack::pack(*sbuf, notify);
-    return sbuf;
-}
-
-
-class session: public std::enable_shared_from_this<session>
-{
-    boost::asio::io_service &m_io_service;
-    std::shared_ptr<boost::asio::ip::tcp::socket> m_socket;
-    unpacker m_pac;
-    // on_read
-    typedef std::function<void(const object &, std::shared_ptr<session>)> on_read_t;
-    on_read_t m_on_read;
-
-    connection_status m_connection_status;
-    connection_callback_t m_connection_callback;
-
-    error_handler_t m_error_handler;
-
-    // must shard_ptr
-    session(boost::asio::io_service& io_service, 
-            on_read_t on_read,
-            connection_callback_t connection_callback,
-            error_handler_t error_handler
-            )
-        : m_io_service(io_service),
-        m_pac(1024 * 1024), m_on_read(on_read), 
-        m_connection_status(connection_none), 
-        m_connection_callback(connection_callback),
-        m_error_handler(error_handler)
-    {
-    }
+    ::msgpack::rpc::msgid_t m_next_msgid;
 public:
+    request_factory()
+        : m_next_msgid(1)
+        {
+        }
 
-    ~session()
+    ::msgpack::rpc::msgid_t next_msgid()
     {
+        return m_next_msgid++;
     }
 
-    static std::shared_ptr<session> create(boost::asio::io_service &io_service, 
-            on_read_t func=on_read_t(),
-            connection_callback_t connection_callback=connection_callback_t(),
-            error_handler_t error_handler=error_handler_t())
+    // 0
+    ::msgpack::rpc::msg_request<std::string, std::tuple<>> 
+        create(const std::string &method)
+        {
+            ::msgpack::rpc::msgid_t msgid = next_msgid();
+            typedef std::tuple<> Parameter;
+            return ::msgpack::rpc::msg_request<std::string, Parameter>(
+                    method, Parameter(), msgid);
+        }
+    // 1
+    template<typename A1>
+        ::msgpack::rpc::msg_request<std::string, std::tuple<A1>> 
+        create(const std::string &method, A1 a1)
+        {
+            ::msgpack::rpc::msgid_t msgid = next_msgid();
+            typedef std::tuple<A1> Parameter;
+            return ::msgpack::rpc::msg_request<std::string, Parameter>(
+                    method, Parameter(a1), msgid);
+        }
+    // 2
+    template<typename A1, typename A2>
+        ::msgpack::rpc::msg_request<std::string, std::tuple<A1, A2>> 
+        create(const std::string &method, A1 a1, A2 a2)
+        {
+            ::msgpack::rpc::msgid_t msgid = next_msgid();
+            typedef std::tuple<A1, A2> Parameter;
+            return ::msgpack::rpc::msg_request<std::string, Parameter>(
+                    method, Parameter(a1, a2), msgid);
+        }
+    // 3
+    template<typename A1, typename A2, typename A3>
+        ::msgpack::rpc::msg_request<std::string, std::tuple<A1, A2, A3>> 
+        create(const std::string &method, A1 a1, A2 a2, A3 a3)
+        {
+            ::msgpack::rpc::msgid_t msgid = next_msgid();
+            typedef std::tuple<A1, A2, A3> Parameter;
+            return ::msgpack::rpc::msg_request<std::string, Parameter>(
+                    method, Parameter(a1, a2, a3), msgid);
+        }
+    // 4
+    template<typename A1, typename A2, typename A3, typename A4>
+        ::msgpack::rpc::msg_request<std::string, std::tuple<A1, A2, A3, A4>> 
+        create(const std::string &method, A1 a1, A2 a2, A3 a3, A4 a4)
+        {
+            ::msgpack::rpc::msgid_t msgid = next_msgid();
+            typedef std::tuple<A1, A2, A3, A4> Parameter;
+            return ::msgpack::rpc::msg_request<std::string, Parameter>(
+                    method, Parameter(a1, a2, a3, a4), msgid);
+        }
+};
+
+
+class func_call_error: public std::runtime_error
+{
+public:
+    func_call_error(const std::string &msg)
+        : std::runtime_error(msg)
+    {}
+};
+
+
+class func_call
+{
+public:
+    enum STATUS_TYPE
     {
-        return std::shared_ptr<session>(new session(io_service, 
-                    func, connection_callback, error_handler));
+        STATUS_WAIT,
+        STATUS_RECEIVED,
+        STATUS_ERROR,
+    };
+private:
+    STATUS_TYPE m_status;
+    error_code m_error_code;
+    std::string m_error_msg;
+    ::msgpack::object m_result;
+    std::string m_request;
+    boost::mutex m_mutex;
+    boost::condition_variable_any m_cond;
+
+    std::function<void(func_call*)> m_callback;
+public:
+    func_call(const std::string &s, std::function<void(func_call*)> callback)
+        : m_status(STATUS_WAIT), m_request(s), m_error_code(success), m_callback(callback)
+        {
+        }
+
+    void set_result(const ::msgpack::object &result)
+    {
+        if(m_status!=STATUS_WAIT){
+            throw func_call_error("already finishded");
+        }
+        boost::mutex::scoped_lock lock(m_mutex);
+        m_result=result;
+        m_status=STATUS_RECEIVED;
+        notify();
     }
 
-    connection_status get_connection_status()const{ return m_connection_status; }
-
-    void connect_async(const boost::asio::ip::tcp::endpoint &endpoint)
+    void set_error(const ::msgpack::object &error)
     {
-        auto shared=shared_from_this();
-        auto socket=std::make_shared<boost::asio::ip::tcp::socket>(m_io_service);
-        auto on_connect=[shared, socket/*keep socket*/](
-                const boost::system::error_code &error){
-            if(error){
-                if(shared->m_error_handler){
-                    shared->m_error_handler(error);
-                }
-                shared->set_connection_status(connection_error);
+        if(m_status!=STATUS_WAIT){
+            throw func_call_error("already finishded");
+        }
+        boost::mutex::scoped_lock lock(m_mutex);
+        typedef std::tuple<int, std::string> CodeWithMsg;
+        CodeWithMsg codeWithMsg;
+        error.convert(&codeWithMsg);
+        m_status=STATUS_ERROR;
+        m_error_code=static_cast<error_code>(std::get<0>(codeWithMsg));
+        m_error_msg=std::get<1>(codeWithMsg);
+        notify();
+    }
+
+    bool is_error()const{ return m_status==STATUS_ERROR; }
+
+    error_code get_error_code()const{ 
+        if(m_status!=STATUS_ERROR){
+            throw func_call_error("no error !");
+        }
+        return m_error_code;
+    }
+
+    // blocking
+    func_call& sync()
+    {
+        boost::mutex::scoped_lock lock(m_mutex);
+        if(m_status==STATUS_WAIT){
+            m_cond.wait(m_mutex);
+        }
+        return *this;
+    }
+
+    const ::msgpack::object &get_result()const
+    {
+        if(m_status==STATUS_RECEIVED){
+            return m_result;
+        }
+        else{
+            throw func_call_error("not ready");
+        }
+    }
+
+    template<typename R>
+        R& convert(R *value)const
+        {
+            if(m_status==STATUS_RECEIVED){
+                m_result.convert(value);
+                return *value;
             }
             else{
-                shared->set_connection_status(connection_connected);
-                shared->start_read();
+                throw func_call_error("not ready");
             }
-        };
-        m_socket=socket;
-        set_connection_status(connection_connecting);
-        m_socket->async_connect(endpoint, on_connect); 
-    }
-
-    void close()
-    {
-        set_connection_status(connection_none);
-    }
-
-    void accept(std::shared_ptr<boost::asio::ip::tcp::socket> socket)
-    {
-        m_socket=socket;
-        set_connection_status(connection_connected);
-        start_read();
-    }
-
-    void start_read()
-    {
-        if(!m_socket){
-			// closed
-            //assert(false);
-            return;
         }
-        auto pac=&m_pac;
-        auto shared=shared_from_this();
-        auto socket=m_socket;
-        auto on_read=[shared, pac, socket/*keep socket*/](
-                const boost::system::error_code &error,
-                size_t bytes_transferred)
-        {
-            if (error && (error != boost::asio::error::eof)) {
-                if(shared->m_error_handler){
-                    shared->m_error_handler(error);
-                }
-                shared->set_connection_status(connection_none);
-                // no more read
-                return;
-            }
-            else {
-                pac->buffer_consumed(bytes_transferred);
 
-                // extract object
-                while(true) {
-                    try{
-                        if(!pac->execute()){
-                            break;
-                        }
-                    }
-                    catch(unpack_error ex){
-                        auto msg=error_notify("msgpack::unpack_error. maybe msgpack buffer over flow by crupped msg");
-                        shared->write_async(msg);
-                        // no more read
-                        // todo: close after write
-                        return;
-                    }
-                    catch(...){
-                        auto msg=error_notify("unknown error");
-                        shared->write_async(msg);
-                        // no more read
-                        // todo: close after write
-                        return;
-                    }
-
-                    // valid msgpack message
-                    size_t size=pac->parsed_size();
-                    ::msgpack::object msg = pac->data();
-
-                    if(shared->m_on_read){
-                        shared->m_on_read(msg, shared);
-                    }
-
-                    pac->reset();
-                }
-
-                // read loop
-                shared->start_read();
-            }
-        };
-        m_socket->async_read_some(
-                boost::asio::buffer(pac->buffer(), pac->buffer_capacity()),
-                on_read
-                );
-    }
-
-   void write_async(std::shared_ptr<msgpack::sbuffer> msg)
+    std::string string()const
     {
-        if(!m_socket){
-            assert(false);
-            return;
-        }
-        auto shared=shared_from_this();
-        auto socket=m_socket;
-        auto on_write=[shared, msg, socket/*keep socket*/](
-                const boost::system::error_code& error, 
-                size_t bytes_transferred)
+        std::stringstream ss;
+        ss << m_request << " = ";
+        switch(m_status)
         {
-            if(error){
-                if(shared->m_error_handler){
-                    shared->m_error_handler(error);
-                }
-                shared->set_connection_status(connection_error);
-            }
-        };
-        socket->async_write_some(
-                boost::asio::buffer(msg->data(), msg->size()), on_write
-                );
+            case func_call::STATUS_WAIT:
+                ss << "?";
+                break;
+            case func_call::STATUS_RECEIVED:
+                ss << m_result;
+                break;
+            case func_call::STATUS_ERROR:
+                ss << "!";
+                break;
+            default:
+                ss << "!?";
+                break;
+        }
+
+        return ss.str();
     }
 
 private:
-   void set_connection_status(connection_status status)
-   {
-       if(m_connection_status==status){
-           return;
-       }
-       if(status==connection_none
-               || status==connection_error){
-           if(m_socket){
-               boost::system::error_code ec;
-               m_socket->shutdown(boost::asio::socket_base::shutdown_both, ec);
-               if(!ec){
-                   m_socket->close(ec);
-               }
-               m_socket=0;
-           }
-       }
-       m_connection_status=status;
-       if(m_connection_callback){
-           m_connection_callback(status);
-       }
-   }
+    void notify()
+    {
+        if(m_callback){
+            m_callback(this);
+        }
+        m_cond.notify_all();
+    }
+};
+typedef std::function<void(func_call*)> func_call_callback_t;
+inline std::ostream &operator<<(std::ostream &os, const func_call &request)
+{
+    os << request.string();
+    return os;
+}
+
+
+class client_error: public std::runtime_error
+{
+public:
+    client_error(const std::string &msg)
+        : std::runtime_error(msg)
+    {}
 };
 
+
+class Session
+{
+	boost::asio::io_service &m_io_service;
+    request_factory m_request_factory;
+
+    std::shared_ptr<Connection> m_connection;
+    std::map<msgpack::rpc::msgid_t, std::shared_ptr<func_call>> m_request_map;
+	std::shared_ptr<msgpack::rpc::asio::dispatcher> m_dispatcher;
+
+    connection_callback_t m_connection_callback;
+    error_handler_t m_error_handler;
+	typedef std::function<void(const object &msg, std::shared_ptr<Connection> connection)> on_receive_t;
+
+public:
+	Session(boost::asio::io_service &io_service,
+            connection_callback_t connection_callback=connection_callback_t(),
+            error_handler_t error_handler=error_handler_t())
+        : m_io_service(io_service), 
+        m_connection_callback(connection_callback),
+        m_error_handler(error_handler)
+    {
+	}
+
+    void connect_async(const boost::asio::ip::tcp::endpoint &endpoint)
+    {
+		auto on_read = [this](const object &msg, std::shared_ptr<Connection> connection)
+		{
+			receive(msg, connection);
+		};
+		m_connection = Connection::create(m_io_service, on_read, m_connection_callback);
+		m_connection->connect_async(endpoint);
+    }
+
+	void accept(std::shared_ptr<boost::asio::ip::tcp::socket> socket)
+	{
+		auto on_read = [this](const object &msg, std::shared_ptr<Connection> connection)
+		{
+			receive(msg, connection);
+		};
+		m_connection = Connection::create(m_io_service, on_read, m_connection_callback);
+		m_connection->accept(socket);
+	}
+	
+	void close()
+    {
+		m_connection->close();
+    }
+
+    bool is_connect()
+    {
+        return m_connection->get_connection_status()==connection_connected;
+    }
+
+	void set_dispatcher(std::shared_ptr<msgpack::rpc::asio::dispatcher> disp)
+	{
+		m_dispatcher = disp;
+	}
+
+	// call_async
+    template<typename... A1>
+    std::shared_ptr<func_call> call_async(func_call_callback_t callback, const std::string &method, A1... a1)
+    {
+        auto request=m_request_factory.create(method, a1...);
+        return send_async(request, callback);
+    }
+
+    template<typename... A1>
+    std::shared_ptr<func_call> call_async(const std::string &method, A1... a1)
+    {
+        auto request=m_request_factory.create(method, a1...);
+        return send_async(request);
+    }
+
+    // call_sync
+    template<typename... A1>
+    void call_sync_void(const std::string &method, A1... a1)
+    {
+        auto request=m_request_factory.create(method, a1...);
+        auto call=send_async(request);
+        call->sync();
+    }
+
+    template<typename R, typename... A1>
+    R &call_sync(R *value, const std::string &method, A1... a1)
+    {
+        auto request=m_request_factory.create(method, a1...);
+        auto call=send_async(request);
+        call->sync().convert(value);
+        return *value;
+    }
+
+private: 
+    template<typename Parameter>
+        std::shared_ptr<func_call> send_async(
+                const ::msgpack::rpc::msg_request<std::string, Parameter> &msgreq,
+                func_call_callback_t callback=func_call_callback_t())
+        {
+            auto sbuf=std::make_shared<msgpack::sbuffer>();
+            ::msgpack::pack(*sbuf, msgreq);
+
+            std::stringstream ss;
+            ss << msgreq.method << msgreq.param;
+            auto req=std::make_shared<func_call>(ss.str(), callback);
+            m_request_map.insert(std::make_pair(msgreq.msgid, req));
+
+			m_connection->write_async(sbuf);
+
+            return req;
+        }
+
+private:
+	void receive(const object &msg, std::shared_ptr<Connection> connection)
+	{
+        ::msgpack::rpc::msg_rpc rpc;
+        msg.convert(&rpc);
+        switch(rpc.type) {
+            case ::msgpack::rpc::REQUEST: 
+				if (m_dispatcher)
+					m_dispatcher->dispatch(msg, connection);
+                break;
+
+            case ::msgpack::rpc::RESPONSE: 
+                {
+                    ::msgpack::rpc::msg_response<object, object> res;
+                    msg.convert(&res);
+                    auto found=m_request_map.find(res.msgid);
+                    if(found!=m_request_map.end()){
+                        if(res.error.type==msgpack::type::NIL){
+                            found->second->set_result(res.result);
+                        }
+                        else if(res.error.type==msgpack::type::BOOLEAN){
+							bool isError;
+							res.error.convert(&isError);
+							if(isError){
+								found->second->set_error(res.result);
+							}
+							else{
+								found->second->set_result(res.result);
+							}
+                        }
+                    }
+                    else{
+                        throw client_error("no request for response");
+                    }
+                }
+                break;
+
+            case ::msgpack::rpc::NOTIFY: 
+                {
+                    ::msgpack::rpc::msg_notify<object, object> req;
+                    msg.convert(&req);
+                }
+                break;
+
+            default:
+                throw client_error("rpc type error");
+        }
+	}
+};
+
+
 }}}
+

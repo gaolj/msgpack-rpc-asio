@@ -7,13 +7,14 @@ namespace asio {
 
 class server
 {
+	typedef std::function<void(const object &msg, std::shared_ptr<Connection> connection)> on_receive_t;
+
     boost::asio::io_service &m_io_service;
     boost::asio::ip::tcp::acceptor m_acceptor;
-    //std::list<std::weak_ptr<session>> m_sessions;
-    typedef std::function<
-        void(const object &msg, std::shared_ptr<session> session)> on_receive_t;
-    on_receive_t m_on_receive;
+    std::set<std::shared_ptr<Session>> m_sessions;
+	std::shared_ptr<msgpack::rpc::asio::dispatcher> m_dispatcher;
 
+    on_receive_t m_on_receive;
     error_handler_t m_error_handler;
 public:
     server(boost::asio::io_service &io_service)
@@ -36,6 +37,11 @@ public:
     ~server()
     {
     }
+
+	void set_dispatcher(std::shared_ptr<msgpack::rpc::asio::dispatcher> disp)
+	{
+		m_dispatcher = disp;
+	}
 
 	void set_on_receive(on_receive_t on_receive)
 	{
@@ -63,15 +69,13 @@ public:
 private:
     void start_accept()
     {
-        auto new_connection = session::create(m_io_service, m_on_receive, 
-                connection_callback_t(),
-                m_error_handler);
+        auto session = std::make_shared<Session>(m_io_service);
+		session->set_dispatcher(m_dispatcher);
         auto socket=std::make_shared<boost::asio::ip::tcp::socket>(m_io_service);
 
-        //m_sessions.push_back(new_connection);
 
         auto self=this;
-        auto on_accept=[self, new_connection, socket/*keep socket*/](
+        auto on_accept=[self, session, socket/*keep socket*/](
                 const boost::system::error_code& error){
             if (error){
                 if(self->m_error_handler){
@@ -82,7 +86,8 @@ private:
                 }
             }
             else{
-                new_connection->accept(socket);
+				self->m_sessions.insert(session);
+				session->accept(socket);
                 // next
                 self->start_accept();
             }

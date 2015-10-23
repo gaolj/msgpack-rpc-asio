@@ -12,7 +12,7 @@ BOOST_AUTO_TEST_CASE( func0 )
 
     // client
     boost::asio::io_service client_io;
-	msgpack::rpc::asio::client client(client_io);
+	msgpack::rpc::asio::Client client(client_io);
     client.connect_async(boost::asio::ip::tcp::endpoint(
                 boost::asio::ip::address::from_string("127.0.0.1"), PORT));
     boost::thread client_thread([&client_io](){ client_io.run(); });
@@ -33,7 +33,7 @@ BOOST_AUTO_TEST_CASE( func1 )
 
     // client
     boost::asio::io_service client_io;
-	msgpack::rpc::asio::client client(client_io);
+	msgpack::rpc::asio::Client client(client_io);
     client.connect_async(boost::asio::ip::tcp::endpoint(
                 boost::asio::ip::address::from_string("127.0.0.1"), PORT));
     boost::thread client_thread([&client_io](){ client_io.run(); });
@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_CASE( func2 )
 
     // client
     boost::asio::io_service client_io;
-	msgpack::rpc::asio::client client(client_io);
+	msgpack::rpc::asio::Client client(client_io);
     client.connect_async(boost::asio::ip::tcp::endpoint(
                 boost::asio::ip::address::from_string("127.0.0.1"), PORT));
     boost::thread client_thread([&client_io](){ client_io.run(); });
@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE( func3 )
 
     // client
     boost::asio::io_service client_io;
-	msgpack::rpc::asio::client client(client_io);
+	msgpack::rpc::asio::Client client(client_io);
     client.connect_async(boost::asio::ip::tcp::endpoint(
                 boost::asio::ip::address::from_string("127.0.0.1"), PORT));
     boost::thread client_thread([&client_io](){ client_io.run(); });
@@ -98,7 +98,7 @@ BOOST_AUTO_TEST_CASE( func4 )
 
     // client
     boost::asio::io_service client_io;
-	msgpack::rpc::asio::client client(client_io);
+	msgpack::rpc::asio::Client client(client_io);
     client.connect_async(boost::asio::ip::tcp::endpoint(
                 boost::asio::ip::address::from_string("127.0.0.1"), PORT));
     boost::thread client_thread([&client_io](){ client_io.run(); });
