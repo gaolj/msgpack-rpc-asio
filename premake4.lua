@@ -63,14 +63,13 @@ end
 configuration "Windows"
 do
     includedirs {
-        "$(BOOST_DIR)",
+        "D:\\Program Files\\boost_1_59_0",
     }
     defines {
-        "_WIN32_WINNT=0x0500",
+        "_WIN32_WINNT=0x0501",
     }
     libdirs {
-        "$(BOOST_DIR)/lib",
-        "$(BOOST_DIR)/stage/lib",
+        "D:\\Program Files\\boost_1_59_0\\lib32-msvc-12.0",
     }
 end
 
