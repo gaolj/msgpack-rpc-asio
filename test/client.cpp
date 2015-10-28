@@ -7,7 +7,9 @@
 
 BOOST_AUTO_TEST_CASE( client )
 {
-    const static int PORT=8070;
+	//_CrtSetBreakAlloc(1164);
+
+	const static int PORT = 8070;
 
     Fixture fixture(PORT);
 

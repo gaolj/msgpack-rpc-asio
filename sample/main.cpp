@@ -17,8 +17,8 @@ int main(int argc, char **argv)
     const static int PORT=8070;
 
     // dispatcher
-    msgpack::rpc::asio::dispatcher dispatcher;
-    dispatcher->add_handler("add", [](int a, int b)->int{ return a+b; });
+	std::shared_ptr<msgpack::rpc::asio::dispatcher> dispatcher = std::make_shared<msgpack::rpc::asio::dispatcher>();
+	dispatcher->add_handler("add", [](int a, int b)->int{ return a + b; });
     dispatcher->add_handler("mul", [](float a, float b)->float{ return a*b; });
     SomeClass s;
 	dispatcher->add_property("number", std::function<SomeClass*()>([&s](){ return &s; })
@@ -28,12 +28,8 @@ int main(int argc, char **argv)
 
     // server
     boost::asio::io_service server_io;
-    msgpack::rpc::asio::server server(server_io, [&dispatcher](
-                const msgpack::object &msg, 
-                std::shared_ptr<msgpack::rpc::asio::Connection> connection)
-            {
-                dispatcher->dispatch(msg, connection);
-            });
+	msgpack::rpc::asio::RpcServer server(server_io);
+	server.set_dispatcher(dispatcher);
     server.listen(boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), PORT));
     boost::thread server_thread([&server_io](){ server_io.run(); });
 

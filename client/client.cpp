@@ -26,20 +26,9 @@ int main(int argc, char **argv)
             , &SomeClass::setNumber
             );
 
-    auto on_error=[](boost::system::error_code error)
-    {
-        std::cerr << error.message() << std::endl;
-    };
-
     // server
     boost::asio::io_service server_io;
-    auto on_receive=[&dispatcher](
-            const msgpack::object &msg, 
-            std::shared_ptr<msgpack::rpc::asio::Connection> connection)
-    {
-        dispatcher->dispatch(msg, connection);
-    };
-    msgpack::rpc::asio::server server(server_io, on_receive, on_error);
+	msgpack::rpc::asio::RpcServer server(server_io);
 	server.set_dispatcher(dispatcher);
     server.listen(boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), PORT));
     boost::thread server_thread([&server_io](){ server_io.run(); });
