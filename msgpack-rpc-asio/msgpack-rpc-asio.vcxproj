@@ -110,6 +110,7 @@
   <ItemGroup>
     <ClInclude Include="include\msgpack\pack_util.h" />
     <ClInclude Include="include\msgpack\rpc\asio\client.h" />
+    <ClInclude Include="include\msgpack\rpc\asio\session_manager.h" />
     <ClInclude Include="include\msgpack\tuple_util.h" />
     <ClInclude Include="include\msgpack\rpc\asio.h" />
     <ClInclude Include="include\msgpack\rpc\protocol.h" />

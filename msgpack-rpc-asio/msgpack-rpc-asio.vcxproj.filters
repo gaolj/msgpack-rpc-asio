@@ -42,5 +42,8 @@
     <ClInclude Include="include\msgpack\rpc\asio\client.h">
       <Filter>include\msgpack\rpc\asio</Filter>
     </ClInclude>
+    <ClInclude Include="include\msgpack\rpc\asio\session_manager.h">
+      <Filter>include\msgpack\rpc\asio</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
