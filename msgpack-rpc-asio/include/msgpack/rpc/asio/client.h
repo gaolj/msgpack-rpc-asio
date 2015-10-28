@@ -7,7 +7,7 @@ namespace asio {
 class Client
 {
 	boost::asio::io_service &m_io_service;
-	std::shared_ptr<Session> m_session;
+	SessionPtr m_session;
 
 
 public:
@@ -18,8 +18,14 @@ public:
 
 	void connect_async(const boost::asio::ip::tcp::endpoint &endpoint)
 	{
-		m_session = std::make_shared<Session>(m_io_service);
+		using std::placeholders::_1;
+		m_session = std::make_shared<Session>(m_io_service, std::bind(&Client::finishSession, this, _1));
 		m_session->connect_async(endpoint);
+	}
+
+	void finishSession(SessionPtr session)
+	{
+		m_session.reset();
 	}
 
 	void close()

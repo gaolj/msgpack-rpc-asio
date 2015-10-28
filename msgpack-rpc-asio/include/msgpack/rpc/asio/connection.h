@@ -114,7 +114,7 @@ public:
                 const boost::system::error_code &error,
                 size_t bytes_transferred)
         {
-            if (error && (error != boost::asio::error::eof)) {
+            if (error) {
                 if(shared->m_error_handler){
                     shared->m_error_handler(error);
                 }
@@ -215,5 +215,7 @@ private:
        }
    }
 };
+
+typedef std::shared_ptr<Connection> ConnectionPtr;
 
 }}}

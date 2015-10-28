@@ -5,36 +5,36 @@ namespace rpc {
 namespace asio {
 
 
-class server
+class RpcServer
 {
-	typedef std::function<void(const object &msg, std::shared_ptr<Connection> connection)> on_receive_t;
+	typedef std::function<void(const object &msg, ConnectionPtr connection)> on_receive_t;
 
     boost::asio::io_service &m_io_service;
     boost::asio::ip::tcp::acceptor m_acceptor;
-    std::set<std::shared_ptr<Session>> m_sessions;
+    std::set<SessionPtr> m_sessions;
 	std::shared_ptr<msgpack::rpc::asio::dispatcher> m_dispatcher;
 
     on_receive_t m_on_receive;
     error_handler_t m_error_handler;
 public:
-    server(boost::asio::io_service &io_service)
+	RpcServer(boost::asio::io_service &io_service)
 		: m_io_service(io_service), m_acceptor(io_service)
 	{
 	}
 
-    server(boost::asio::io_service &io_service, on_receive_t on_receive)
+	RpcServer(boost::asio::io_service &io_service, on_receive_t on_receive)
         : m_io_service(io_service), m_acceptor(io_service), m_on_receive(on_receive)
     {
     }
 
-    server(boost::asio::io_service &io_service, 
+	RpcServer(boost::asio::io_service &io_service,
             on_receive_t on_receive, error_handler_t error_handler)
         : m_io_service(io_service), m_acceptor(io_service), 
         m_on_receive(on_receive), m_error_handler(error_handler)
     {
     }
 
-    ~server()
+	~RpcServer()
     {
     }
 
@@ -66,10 +66,18 @@ public:
         m_acceptor.close();
     }
 
+	void finishSession(SessionPtr session)
+	{
+		auto iter = m_sessions.find(session);
+		if (iter != m_sessions.end())
+			m_sessions.erase(iter);
+	}
+
 private:
     void start_accept()
     {
-        auto session = std::make_shared<Session>(m_io_service);
+		using std::placeholders::_1;
+		SessionPtr session = std::make_shared<Session>(m_io_service, std::bind(&RpcServer::finishSession, this, _1));
 		session->set_dispatcher(m_dispatcher);
         auto socket=std::make_shared<boost::asio::ip::tcp::socket>(m_io_service);
 

@@ -131,7 +131,7 @@ public:
         }
     }
 
-    void dispatch(const object &msg, std::shared_ptr<Connection> connection)
+    void dispatch(const object &msg, ConnectionPtr connection)
     {
         // extract msgpack request
         ::msgpack::rpc::msg_request<msgpack::object, msgpack::object> req;

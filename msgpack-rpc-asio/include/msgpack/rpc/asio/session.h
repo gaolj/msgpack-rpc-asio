@@ -222,24 +222,27 @@ public:
 };
 
 
-class Session
+class Session : public std::enable_shared_from_this<Session>
 {
+	typedef std::function<void(std::shared_ptr<Session> session)> FinishHandler;
 	boost::asio::io_service &m_io_service;
     request_factory m_request_factory;
 
-    std::shared_ptr<Connection> m_connection;
+    ConnectionPtr m_connection;
     std::map<msgpack::rpc::msgid_t, std::shared_ptr<func_call>> m_request_map;
 	std::shared_ptr<msgpack::rpc::asio::dispatcher> m_dispatcher;
 
     connection_callback_t m_connection_callback;
     error_handler_t m_error_handler;
-	typedef std::function<void(const object &msg, std::shared_ptr<Connection> connection)> on_receive_t;
+	FinishHandler m_finishHandler;
+	typedef std::function<void(const object &msg, ConnectionPtr connection)> on_receive_t;
 
 public:
-	Session(boost::asio::io_service &io_service,
+	Session(boost::asio::io_service &io_service, FinishHandler finishHandler,
             connection_callback_t connection_callback=connection_callback_t(),
             error_handler_t error_handler=error_handler_t())
         : m_io_service(io_service), 
+		m_finishHandler(finishHandler),
         m_connection_callback(connection_callback),
         m_error_handler(error_handler)
     {
@@ -247,21 +250,25 @@ public:
 
     void connect_async(const boost::asio::ip::tcp::endpoint &endpoint)
     {
-		auto on_read = [this](const object &msg, std::shared_ptr<Connection> connection)
-		{
-			receive(msg, connection);
-		};
-		m_connection = Connection::create(m_io_service, on_read, m_connection_callback);
+		using std::placeholders::_1;
+		using std::placeholders::_2;
+		m_connection = Connection::create(m_io_service, 
+										std::bind(&Session::receive, shared_from_this(), _1, _2),
+										m_connection_callback,
+										std::bind(&Session::net_error_handler, shared_from_this(), _1));
+
 		m_connection->connect_async(endpoint);
     }
 
 	void accept(std::shared_ptr<boost::asio::ip::tcp::socket> socket)
 	{
-		auto on_read = [this](const object &msg, std::shared_ptr<Connection> connection)
-		{
-			receive(msg, connection);
-		};
-		m_connection = Connection::create(m_io_service, on_read, m_connection_callback);
+		using std::placeholders::_1;
+		using std::placeholders::_2;
+		m_connection = Connection::create(m_io_service,
+										std::bind(&Session::receive, shared_from_this(), _1, _2),
+										m_connection_callback,
+										std::bind(&Session::net_error_handler, shared_from_this(), _1));
+
 		m_connection->accept(socket);
 	}
 	
@@ -278,6 +285,11 @@ public:
 	void set_dispatcher(std::shared_ptr<msgpack::rpc::asio::dispatcher> disp)
 	{
 		m_dispatcher = disp;
+	}
+
+	void net_error_handler(boost::system::error_code &error)
+	{
+		m_finishHandler(shared_from_this());
 	}
 
 	// call_async
@@ -333,7 +345,7 @@ private:
         }
 
 private:
-	void receive(const object &msg, std::shared_ptr<Connection> connection)
+	void receive(const object &msg, ConnectionPtr connection)
 	{
         ::msgpack::rpc::msg_rpc rpc;
         msg.convert(&rpc);
@@ -382,6 +394,7 @@ private:
 	}
 };
 
+typedef std::shared_ptr<Session> SessionPtr;
 
 }}}
 
