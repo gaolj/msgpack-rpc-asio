@@ -233,18 +233,15 @@ class Session : public std::enable_shared_from_this<Session>
 	std::shared_ptr<msgpack::rpc::asio::dispatcher> m_dispatcher;
 
     connection_callback_t m_connection_callback;
-    error_handler_t m_error_handler;
 	FinishHandler m_finishHandler;
 	typedef std::function<void(const object &msg, ConnectionPtr connection)> on_receive_t;
 
 public:
 	Session(boost::asio::io_service &io_service, FinishHandler finishHandler,
-            connection_callback_t connection_callback=connection_callback_t(),
-            error_handler_t error_handler=error_handler_t())
+            connection_callback_t connection_callback=connection_callback_t())
         : m_io_service(io_service), 
 		m_finishHandler(finishHandler),
-        m_connection_callback(connection_callback),
-        m_error_handler(error_handler)
+        m_connection_callback(connection_callback)
     {
 	}
 
