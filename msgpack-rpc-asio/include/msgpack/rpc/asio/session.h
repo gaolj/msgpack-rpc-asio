@@ -272,10 +272,15 @@ public:
 		m_connection->accept(socket);
 	}
 	
-	void close()
+	void stop()
     {
 		m_connection->close();
     }
+
+	void close()
+	{
+		m_connection->close();
+	}
 
     bool is_connect()
     {

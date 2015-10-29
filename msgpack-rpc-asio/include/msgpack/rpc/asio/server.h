@@ -1,4 +1,5 @@
 #pragma once
+#include "session_manager.h"
 
 namespace msgpack {
 namespace rpc {
@@ -11,7 +12,6 @@ class RpcServer
 
     boost::asio::io_service &m_io_service;
     boost::asio::ip::tcp::acceptor m_acceptor;
-    std::set<SessionPtr> m_sessions;
 	std::shared_ptr<msgpack::rpc::asio::dispatcher> m_dispatcher;
 
     on_receive_t m_on_receive;
@@ -68,9 +68,7 @@ public:
 
 	void finishSession(SessionPtr session)
 	{
-		auto iter = m_sessions.find(session);
-		if (iter != m_sessions.end())
-			m_sessions.erase(iter);
+		SessionManager::instance()->stop(session);
 	}
 
 private:
@@ -94,7 +92,7 @@ private:
                 }
             }
             else{
-				self->m_sessions.insert(session);
+				SessionManager::instance()->start(session);
 				session->accept(socket);
                 // next
                 self->start_accept();
